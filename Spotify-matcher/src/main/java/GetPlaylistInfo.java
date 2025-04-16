@@ -7,7 +7,7 @@ public class GetPlaylistInfo {
     String[] trackIDs;
     Map<String, Map<String, Integer>> trackFeatures;
 
-    // user enters link, playlist -> three dots -> share -> copy link to playlist
+    // user enters last.fm link
     // http call to get the info from front end input??
 
     // user enters link, get Spotify ID from link;
@@ -17,8 +17,8 @@ public class GetPlaylistInfo {
         this.id = link.substring(s+9, e);
     }
 
-    // use Spotify ID to make call to Spotify API to get playlist information
-    // get tracks within playlist
+    // use Last.fm track.getTags to make call to Last.fm API to get playlist information
+    // get tags from song
 
-    // parse out audio features of each track in playlist
+    // send song info to ai api
 }
