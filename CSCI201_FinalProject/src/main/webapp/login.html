@@ -1,10 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 </head>
 <body>
+
+    <div id="login-content" class="content center hidden">
+		<form id="login-form" class="form">
+			
+            <h1>Login</h1>
+			
+			<div id="login-email-div" class="form-div">
+				<label class="form-label" for="email-login">Email Address</label>
+				<div id="login-email-input-div" class="input-div">
+					<input id="email-login" class="form-input" type="email" name="email" placeholder="Enter Email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
+					<img   id="email-warn-login" class="red icon icon-pad hidden" src="images/warning-circle.svg">
+				</div>
+				<p id="email-invalid-login" class="form-error hidden">Email must be valid.</p>
+			</div>
+			
+			<div id="login-pw-div" class="form-div">
+				<label class="form-label" for="pw-login">Password</label>
+				
+				<div id="login-pw-input-div" class="input-div">
+					<input id="pw-login" class="form-input" type="password"  name="pw" placeholder="Password" required>
+					<img id="pw-warn-login" class="red icon icon-pad hidden" src="images/warning-circle.svg">
+				</div>
+				<p id="pw-required-login" class="form-error hidden">Password is required.</p>
+				<p id="auth-error" class="form-error hidden">Password and/or email is incorrect.</p>
+			</div>
+			
+			<input disabled id="login-button" class="form-button" type="submit" value="Log In">
+		</form>
+        <div class="div-centeralign">
+            <p id="register-link">Don't have an account yet?<a class="inline-link-left" href="register.html">Register</a></p>
+        </div>
+		
+	</div>
 
 </body>
 </html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+<body>
+
+    <div id="register-content" class="content center hidden">
+		
+		<form id="register" class="form">
+			<h1>Register</h1>
+			<div id="name-div" class="form-div">
+				<label class="form-label" for="fullname">Full Name</label>
+				<div id="name-input-div" class="input-div">
+					<input class="form-input" type="text" id="fullname" name="name" placeholder="John Doe" required>
+					<img id="name-warn-reg" class="icon icon-pad hidden" src="images/warning-circle.svg">
+				</div>
+				<p id="fullname-empty" class="form-error hidden">Fullname is required.</p>
+			</div>
+			
+			<div id="email-div" class="form-div">
+				<label class="form-label" for="email">Email Address</label>
+				<div id="email-input-div" class="input-div">
+					<input class="form-input" type="email" id="email-register" name="email" placeholder="Enter Email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
+					<img id="email-warn-reg" class="icon icon-pad hidden" src="images/warning-circle.svg">
+				</div>
+				<p id="email-invalid" class="form-error hidden">Email must be valid.</p>
+				<p id="email-exists" class="form-error hidden">User with this email already exists.</p>
+			</div>
+			
+			<div id="pw-div" class="form-div">
+				<label class="form-label" for="pw-register">Password</label>
+				<div id="pw-input-div" class="input-div">
+					<input class="form-input" type="password" id="pw-register" name="pw-register" placeholder="Password" required>
+					<img id="pw-warn-reg" class="icon icon-pad hidden" src="images/warning-circle.svg">
+				</div>
+				<p id="pw-required" class="form-error hidden">Password is required.</p>
+			</div>
+			
+			<input disabled id="register-button" class="form-button" type="submit" value="Register">
+		</form>
+        <div class="div-centeralign">
+            <p id="login-link">Already have an account? <a href="login.html">Log In</a></p>
+        </div>
+	</div>
+
+
+</body>
+</html>
