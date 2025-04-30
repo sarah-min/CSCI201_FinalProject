@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,9 +31,11 @@ public class UploadSong extends HttpServlet {
 		      throws ServletException, IOException {
 		String key = "6aaf096bf740fe27fb746c05f24fcecb";
  
-		String artist = "";
+		// make sure artist and track are in the format "word+word+word..."
+		// alternatively: parse out from input string
+		String artist = ""; 
 		String track = ""; 
-		String urlStr = "http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=" + key + "&artist=" + artist + "&track=" + track + "&format=json";
+		String urlStr = "http://ws.audioscrobbler.com/2.0/?method=track.gettoptags&artist=" + artist + "&track=" + track + "&api_key=" + key + "&format=json";
 		URL url = new URL(urlStr);
 		Gson gson = new Gson();
 		
@@ -50,8 +53,12 @@ public class UploadSong extends HttpServlet {
         br.close();
         conn.disconnect();
         
-        JsonObject jsonObject = gson.fromJson(content.toString(), JsonObject.class);
-        JsonArray tagArray = jsonObject.getAsJsonObject("track").getAsJsonObject("toptags").getAsJsonArray("tag");
+        PrintWriter pw = response.getWriter();
+        JsonObject jo = gson.fromJson(content.toString(), JsonObject.class);
+        if (jo.get("error") != null) {
+        	pw.write("Error: Song not found");
+        }
+        JsonArray tagArray = jo.getAsJsonObject("toptags").getAsJsonArray("tag");
         
         // list of tags for this song
         List<String> tags = new ArrayList<>();
