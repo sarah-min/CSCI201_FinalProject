@@ -3,9 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Movie Recommender</title>
+    <link rel="stylesheet" href="home.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
 </head>
 <body>
-    
+    <header>
+        <h2>Media & Music Recommender</h2>
+    </header>
+
+    <div class="div-centeralign">
+        <div class="login-status">
+            <p id="user-status">Not logged in</p>
+            <!-- need loggin status -->
+        </div>
+
+        <div class="form">
+            <h1>Movie Recommender</h1>
+            <div class="form-div">
+                <label class="form-label" for="music-input">Playlist Link or Song Title</label>
+                <div class="input-div">
+                    <input class="form-input" type="text" id="music-input" name="music-input" placeholder="Enter playlist link or song title" required>
+                </div>
+            </div>
+            <div class="button-group">
+                <button id="generate-button" class="form-button">Generate Movie Recommendation</button>
+                <button id="history-button" class="form-button">History</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 CSCI 201 Final Project. All rights reserved.</p>
+    </footer>
+    <script src="main.js"></script>
 </body>
 </html>
