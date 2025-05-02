@@ -68,6 +68,14 @@ public class UploadSong extends HttpServlet {
             tags.add(newTag);
         }
         
+        /*
+         * possible format for gemini api request:
+         * give a list of 3 movie names and a short summary of each based on these tags: 
+         * {list of tags} 
+         * without mentioning the tags in your response in json format, 
+         * only provide real movies that have been released
+         */
+        
 	}
 	
 	class ArtsyResponse {
