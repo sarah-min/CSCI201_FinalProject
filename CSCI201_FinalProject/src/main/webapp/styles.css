@@ -121,6 +121,10 @@ h1 {
     color: red;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* Inline Link */
 .inline-link-left {
     padding-left: 6px;
