@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const musicInput = document.getElementById('music-input');
     const generateButton = document.getElementById('generate-button');
     const historyButton = document.getElementById('history-button');
+    const fileUpload = document.getElementById('file-upload');
     
     // Add event listeners if on the main.html page
     if (generateButton) {
@@ -17,6 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (historyButton) {
         historyButton.addEventListener('click', viewSearchHistory);
+    }
+
+    if (fileUpload) {
+        fileUpload.addEventListener('change', handleFileUpload);
     }
     
     // Check if we're on register.html or login.html
@@ -80,13 +85,47 @@ function checkLoginStatus() {
 }
 
 /**
+ * Handle file upload
+ */
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('UploadSong', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayRecommendations(data);
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while processing the file');
+    });
+}
+
+/**
  * Handle generate recommendation button click
  */
 function handleGenerateRecommendation() {
     const musicInput = document.getElementById('music-input');
+    const fileUpload = document.getElementById('file-upload');
+    
+    if (fileUpload.files.length > 0) {
+        handleFileUpload({ target: fileUpload });
+        return;
+    }
     
     if (!musicInput || !musicInput.value.trim()) {
-        alert('Please enter a song title or playlist link');
+        alert('Please enter a song title, playlist link, or upload a file');
         return;
     }
     
