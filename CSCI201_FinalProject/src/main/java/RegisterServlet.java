@@ -167,43 +167,70 @@ class AccountHelper {
 }
 
 class SystemBootstrapper {
-    static void initializeDatabaseSchema() {
-        try (Connection conn = DBUtil.getConnection();
-             Statement executor = conn.createStatement()) {
-            
-            executor.executeUpdate("CREATE DATABASE IF NOT EXISTS FinalProject");
-            executor.execute("USE FinalProject");
-            
-            executor.executeUpdate("""
-                CREATE TABLE IF NOT EXISTS user (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    username VARCHAR(100) NOT NULL,
-                    email VARCHAR(100) NOT NULL UNIQUE,
-                    password VARCHAR(255) NOT NULL
-                )
-            """);
-            
-            executor.executeUpdate("""
-                CREATE TABLE IF NOT EXISTS favorites (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    user_id INT NOT NULL,
-                    artist_id VARCHAR(100) NOT NULL,
-                    artist_name VARCHAR(255) NOT NULL,
-                    artist_image VARCHAR(500),
-                    FOREIGN KEY (user_id) REFERENCES user(id),
-                    UNIQUE KEY unique_favorite (user_id, artist_id)
-                )
-            """);
-            
-            executor.executeUpdate("""
-                CREATE TABLE IF NOT EXISTS artsy_token (
-                    id INT PRIMARY KEY DEFAULT 1,
-                    token TEXT NOT NULL,
-                    expires_at TIMESTAMP NOT NULL
-                )
-            """);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
+	static void initializeDatabaseSchema() {
+	    try (Connection conn = DBUtil.getConnection();
+	         Statement executor = conn.createStatement()) {
+	        
+	        executor.executeUpdate("CREATE DATABASE IF NOT EXISTS FinalProject");
+	        executor.execute("USE FinalProject");
+	        
+	        executor.executeUpdate("""
+	            CREATE TABLE IF NOT EXISTS user (
+	                id INT AUTO_INCREMENT PRIMARY KEY,
+	                username VARCHAR(100) NOT NULL,
+	                email VARCHAR(100) NOT NULL UNIQUE,
+	                password VARCHAR(255) NOT NULL
+	            )
+	        """);
+	        
+	        executor.executeUpdate("""
+	            CREATE TABLE IF NOT EXISTS favorites (
+	                id INT AUTO_INCREMENT PRIMARY KEY,
+	                user_id INT NOT NULL,
+	                artist_id VARCHAR(100) NOT NULL,
+	                artist_name VARCHAR(255) NOT NULL,
+	                artist_image VARCHAR(500),
+	                FOREIGN KEY (user_id) REFERENCES user(id),
+	                UNIQUE KEY unique_favorite (user_id, artist_id)
+	            )
+	        """);
+	        
+	        executor.executeUpdate("""
+	            CREATE TABLE IF NOT EXISTS artsy_token (
+	                id INT PRIMARY KEY DEFAULT 1,
+	                token TEXT NOT NULL,
+	                expires_at TIMESTAMP NOT NULL
+	            )
+	        """);
+	        
+	        // Add the search_history table for storing music-to-movie recommendations
+	        executor.executeUpdate("""
+	            CREATE TABLE IF NOT EXISTS search_history (
+	                id INT AUTO_INCREMENT PRIMARY KEY,
+	                user_id INT NOT NULL,
+	                artist VARCHAR(255) NOT NULL,
+	                track VARCHAR(255) NOT NULL,
+	                tags TEXT,
+	                recommendations TEXT,
+	                search_date TIMESTAMP NOT NULL,
+	                FOREIGN KEY (user_id) REFERENCES user(id)
+	            )
+	        """);
+	        
+	        // Add the movie_search_history table for storing movie-to-music recommendations
+	        executor.executeUpdate("""
+	            CREATE TABLE IF NOT EXISTS movie_search_history (
+	                id INT AUTO_INCREMENT PRIMARY KEY,
+	                user_id INT NOT NULL,
+	                movie VARCHAR(255) NOT NULL,
+	                genres TEXT,
+	                recommendations TEXT,
+	                search_date TIMESTAMP NOT NULL,
+	                FOREIGN KEY (user_id) REFERENCES user(id)
+	            )
+	        """);
+	    } catch (SQLException ex) {
+	        ex.printStackTrace();
+	    }
+	}
 }

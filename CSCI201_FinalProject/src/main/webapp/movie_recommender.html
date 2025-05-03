@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Recommender</title>
+    <title>Song Recommender</title>
     <link rel="stylesheet" href="home.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
 </head>
@@ -19,26 +19,24 @@
         </div>
 
         <div class="form">
-            <h1>Movie Recommender</h1>
+            <h1>Song Recommender</h1>
             <div class="form-div">
-                <label class="form-label" for="music-input">Playlist Link or Song Title</label>
+                <label class="form-label" for="movie-input">Movie Title</label>
                 <div class="input-div">
-                    <input class="form-input" type="text" id="music-input" name="music-input" placeholder="Enter playlist link or song title" required>
+                    <input class="form-input" type="text" id="movie-input" name="movie-input" placeholder="Enter a movie title" required>
                 </div>
             </div>
             <div class="button-group">
-                <button id="generate-button" class="form-button">Generate Movie Recommendation</button>
+                <button id="generate-button" class="form-button">Generate Song Recommendation</button>
                 <button id="history-button" class="form-button">History</button>
-    			<a href="movie_recommender.html"><button class="form-button">Switch to Song Recommender</button></a>
+                <a href="main.html"><button class="form-button">Switch to Movie Recommender</button></a>
             </div>
-
-</div>
         </div>
     </div>
 
     <footer>
         <p>© 2025 CSCI 201 Final Project. All rights reserved.</p>
     </footer>
-    <script src="main.js"></script>
+    <script src="movie_recommender.js"></script>
 </body>
 </html>

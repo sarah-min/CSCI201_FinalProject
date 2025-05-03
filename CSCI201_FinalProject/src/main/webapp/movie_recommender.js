@@ -1,16 +1,16 @@
-// Main functionality for the media recommender app
+// Main functionality for the movie recommender app
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("Main script loaded");
+    console.log("Movie recommender script loaded");
     
     // Check if user is logged in
     checkLoginStatus();
     
-    // Get form elements if on the main.html page
-    const musicInput = document.getElementById('music-input');
+    // Get form elements
+    const movieInput = document.getElementById('movie-input');
     const generateButton = document.getElementById('generate-button');
     const historyButton = document.getElementById('history-button');
     
-    // Add event listeners if on the main.html page
+    // Add event listeners
     if (generateButton) {
         generateButton.addEventListener('click', handleGenerateRecommendation);
     }
@@ -18,39 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (historyButton) {
         historyButton.addEventListener('click', viewSearchHistory);
     }
-    
-    // Check if we're on register.html or login.html
-    initializeFormVisibility();
 });
-
-/**
- * Initialize form visibility - fixes issue with forms being hidden initially
- */
-function initializeFormVisibility() {
-    // Show the register content if it exists
-    const registerContent = document.getElementById('register-content');
-    if (registerContent) {
-        registerContent.classList.remove('hidden');
-    }
-    
-    // Show the login content if it exists
-    const loginContent = document.getElementById('login-content');
-    if (loginContent) {
-        loginContent.classList.remove('hidden');
-    }
-    
-    // Hide all error messages initially
-    const errorMessages = document.querySelectorAll('.form-error');
-    errorMessages.forEach(message => {
-        message.classList.add('hidden');
-    });
-    
-    // Hide all warning icons initially
-    const warningIcons = document.querySelectorAll('.icon');
-    warningIcons.forEach(icon => {
-        icon.classList.add('hidden');
-    });
-}
 
 /**
  * Check login status and update UI accordingly
@@ -83,20 +51,20 @@ function checkLoginStatus() {
  * Handle generate recommendation button click
  */
 function handleGenerateRecommendation() {
-    const musicInput = document.getElementById('music-input');
+    const movieInput = document.getElementById('movie-input');
     
-    if (!musicInput || !musicInput.value.trim()) {
-        alert('Please enter a song title or playlist link');
+    if (!movieInput || !movieInput.value.trim()) {
+        alert('Please enter a movie title');
         return;
     }
     
-    // Send request to UploadSong servlet
-    fetch('UploadSong', {
+    // Send request to UploadMovie servlet
+    fetch('UploadMovie', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `songInput=${encodeURIComponent(musicInput.value.trim())}`
+        body: `movieInput=${encodeURIComponent(movieInput.value.trim())}`
     })
     .then(response => response.json())
     .then(data => {
@@ -113,14 +81,14 @@ function handleGenerateRecommendation() {
 }
 
 /**
- * Display movie recommendations
+ * Display song recommendations
  */
 function displayRecommendations(data) {
     // You would implement a UI to display the recommendations here
     // For now, just show an alert with the data
-    let message = `Recommendations based on ${data.artist} - ${data.track}\n\n`;
-    message += `Tags: ${data.tags.join(', ')}\n\n`;
-    message += `Movies: ${data.recommendations}`;
+    let message = `Recommendations based on the movie: ${data.movie}\n\n`;
+    message += `Genres: ${data.genres.join(', ')}\n\n`;
+    message += `Songs: ${data.recommendations}`;
     
     alert(message);
     
@@ -132,7 +100,7 @@ function displayRecommendations(data) {
  */
 function viewSearchHistory() {
     // Redirect to history page or show history modal
-    fetch('GetSongSearchHistory', {
+    fetch('GetMovieSearchHistory', {
         method: 'GET',
         credentials: 'include'
     })
@@ -154,5 +122,6 @@ function viewSearchHistory() {
         console.error('Error:', error);
         alert('An error occurred while retrieving search history');
     });
-
-}
+}/**
+ * 
+ */

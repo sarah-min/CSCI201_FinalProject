@@ -5,6 +5,7 @@
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
@@ -238,23 +239,105 @@ public class UploadSong extends HttpServlet {
     }
     
     private void saveSearchToHistory(int userId, String artist, String track, List<String> tags, String recommendations) {
-        try (Connection conn = DBUtil.getConnection()) {
-            String query = "INSERT INTO search_history (user_id, artist, track, tags, recommendations, search_date) " +
-                           "VALUES (?, ?, ?, ?, ?, NOW())";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBUtil.getConnection();
+            conn.setAutoCommit(false);
             
-            PreparedStatement stmt = conn.prepareStatement(query);
+            // Insert into song_search_history first
+            String query = "INSERT INTO song_search_history (user_id, search_query, result_count, search_date) " +
+                           "VALUES (?, ?, ?, NOW())";
+            
+            stmt = conn.prepareStatement(query, java.sql.Statement.RETURN_GENERATED_KEYS);
             stmt.setInt(1, userId);
-            stmt.setString(2, artist);
-            stmt.setString(3, track);
-            stmt.setString(4, String.join(", ", tags));
-            stmt.setString(5, recommendations);
+            stmt.setString(2, artist + " - " + track);
+            stmt.setInt(3, 1); // Just one result for now
             
-            stmt.executeUpdate();
+            int rowsAffected = stmt.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                rs = stmt.getGeneratedKeys();
+                if (rs.next()) {
+                    int searchId = rs.getInt(1);
+                    
+                    // Now insert the search result details
+                    String resultQuery = "INSERT INTO song_search_results " +
+                                         "(search_id, artist_name, track_name, album_name, track_url, artist_url, image_url) " +
+                                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    
+                    PreparedStatement resultStmt = conn.prepareStatement(resultQuery);
+                    resultStmt.setInt(1, searchId);
+                    resultStmt.setString(2, artist);
+                    resultStmt.setString(3, track);
+                    resultStmt.setString(4, ""); // No album info available
+                    resultStmt.setString(5, ""); // No track URL available
+                    resultStmt.setString(6, ""); // No artist URL available
+                    resultStmt.setString(7, ""); // No image URL available
+                    
+                    resultStmt.executeUpdate();
+                    resultStmt.close();
+                    
+                    // Also save to the old search_history table for backward compatibility
+                    String oldQuery = "INSERT INTO search_history (user_id, artist, track, tags, recommendations, search_date) " +
+                                     "VALUES (?, ?, ?, ?, ?, NOW())";
+                    
+                    PreparedStatement oldStmt = conn.prepareStatement(oldQuery);
+                    oldStmt.setInt(1, userId);
+                    oldStmt.setString(2, artist);
+                    oldStmt.setString(3, track);
+                    oldStmt.setString(4, String.join(", ", tags));
+                    oldStmt.setString(5, recommendations);
+                    
+                    oldStmt.executeUpdate();
+                    oldStmt.close();
+                    
+                    // Save tags for this search
+                    for (String tag : tags) {
+                        saveSongTag(conn, track, artist, tag);
+                    }
+                }
+            }
+            
+            conn.commit();
             
         } catch (SQLException e) {
             // Log the error but don't fail the request
             e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+    }
+    
+    private void saveSongTag(Connection conn, String trackName, String artistName, String tagName) throws SQLException {
+        String query = "INSERT INTO song_tags (track_name, artist_name, tag_name) VALUES (?, ?, ?) " +
+                       "ON DUPLICATE KEY UPDATE tag_count = tag_count + 1";
+        
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, trackName);
+        stmt.setString(2, artistName);
+        stmt.setString(3, tagName);
+        
+        stmt.executeUpdate();
+        stmt.close();
     }
     
     private void sendErrorResponse(PrintWriter out, String errorMessage) {
