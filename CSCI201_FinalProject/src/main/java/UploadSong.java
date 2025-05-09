@@ -9,8 +9,12 @@ import java.sql.ResultSet;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,7 +42,7 @@ public class UploadSong extends HttpServlet {
     // LastFM API key
     private static final String LASTFM_API_KEY = "6aaf096bf740fe27fb746c05f24fcecb";
     
-    // Gemini API key - You would need to add your actual API key here
+    // Gemini API key
     private static final String GEMINI_API_KEY = "AIzaSyC-ftDJUaIIxy3B05R1GLfN5GVzhZfxEsE";
     private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
     
@@ -59,23 +63,25 @@ public class UploadSong extends HttpServlet {
         }
         
         // Parse song input to get artist and track
-        // This is a simple implementation - you might want to improve it
         String[] parts = songInput.split("-");
         if (parts.length < 2) {
-            sendErrorResponse(out, "Invalid format. Please use 'Artist - Track' format");
+            sendErrorResponse(out, "Invalid format. Please use 'Song Title - Artist' format");
             return;
         }
         
-        String artist = parts[0].trim();
-        String track = parts[1].trim();
+        String track = parts[0].trim();
+        String artist = parts[1].trim();
+       
         
         // URL encode the artist and track names
-        artist = URLEncoder.encode(artist, StandardCharsets.UTF_8).replace("+", "%20");
-        track = URLEncoder.encode(track, StandardCharsets.UTF_8).replace("+", "%20");
+        String parsedartist = URLEncoder.encode(artist, StandardCharsets.UTF_8);
+        String parsedtrack = URLEncoder.encode(track, StandardCharsets.UTF_8);
+        parsedartist = parsedartist.replaceAll(" ", "+");
+        parsedtrack = parsedtrack.replaceAll(" ", "+");
         
         try {
             // Get song tags from LastFM
-            List<String> tags = getLastFMTags(artist, track);
+            List<String> tags = getLastFMTags(parsedartist, parsedtrack);
             
             if (tags.isEmpty()) {
                 sendErrorResponse(out, "Could not find tags for this song");
@@ -114,11 +120,13 @@ public class UploadSong extends HttpServlet {
         }
     }
     
-    private List<String> getLastFMTags(String artist, String track) throws IOException {
+    private List<String> getLastFMTags(String a, String t) throws IOException {
         List<String> tags = new ArrayList<>();
         
+        
+        // String urlStr = "http://ws.audioscrobbler.com/2.0/";
         String urlStr = "http://ws.audioscrobbler.com/2.0/?method=track.gettoptags&artist=" + 
-                        artist + "&track=" + track + "&api_key=" + LASTFM_API_KEY + "&format=json";
+                        a + "&track=" + t + "&api_key=" + LASTFM_API_KEY + "&format=json";
         
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -176,7 +184,7 @@ public class UploadSong extends HttpServlet {
         // Prepare the prompt for Gemini API
         String prompt = "Give a list of 3 movie names and a short summary of each based on these tags: " + 
                         String.join(", ", tags) + 
-                        " without mentioning the tags in your response in json format, only provide real movies that have been released";
+                        " without mentioning the tags in your response in json format with the two fields being 'title' and 'summary', only provide real movies that have been released";
         
         // Create the request body
         JsonObject requestBody = new JsonObject();
@@ -347,26 +355,5 @@ public class UploadSong extends HttpServlet {
         out.write(jsonResponse.toString());
     }
     
-    class ArtsyResponse {
-        Embedded _embedded;
-
-        static class Embedded {
-            List<Result> results;
-        }
-
-        static class Result {
-            String title;
-            String type;
-            Links _links;
-
-            static class Links {
-                Href thumbnail;
-                Href permalink;
-
-                static class Href {
-                    String href;
-                }
-            }
-        }
-    }
+    
 }

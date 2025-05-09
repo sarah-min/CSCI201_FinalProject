@@ -12,9 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileUpload = document.getElementById('file-upload');
     
     // Add event listeners if on the main.html page
-    if (generateButton) {
-        generateButton.addEventListener('click', handleGenerateRecommendation);
-    }
+    
     
     if (historyButton) {
         historyButton.addEventListener('click', viewSearchHistory);
@@ -85,49 +83,18 @@ function checkLoginStatus() {
 }
 
 /**
- * Handle file upload
- */
-function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    fetch('UploadSong', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            displayRecommendations(data);
-        } else {
-            alert(`Error: ${data.error}`);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while processing the file');
-    });
-}
-
-/**
  * Handle generate recommendation button click
  */
-function handleGenerateRecommendation() {
-    const musicInput = document.getElementById('music-input');
-    const fileUpload = document.getElementById('file-upload');
+function generateRecommendation() {
+    // const linkInput = document.getElementById('link-input');
+    const songInput = document.getElementById('song-input');
     
-    if (fileUpload.files.length > 0) {
-        handleFileUpload({ target: fileUpload });
+    if (songInput.value === null) {
+        alert('Please enter a song');
         return;
     }
-    
-    if (!musicInput || !musicInput.value.trim()) {
-        alert('Please enter a song title, playlist link, or upload a file');
-        return;
-    }
+	
+	console.log(songInput);
     
     // Send request to UploadSong servlet
     fetch('UploadSong', {
@@ -135,7 +102,7 @@ function handleGenerateRecommendation() {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `songInput=${encodeURIComponent(musicInput.value.trim())}`
+        body: `songInput=${encodeURIComponent(songInput.value.trim())}`
     })
     .then(response => response.json())
     .then(data => {
@@ -155,15 +122,47 @@ function handleGenerateRecommendation() {
  * Display movie recommendations
  */
 function displayRecommendations(data) {
-    // You would implement a UI to display the recommendations here
-    // For now, just show an alert with the data
-    let message = `Recommendations based on ${data.artist} - ${data.track}\n\n`;
-    message += `Tags: ${data.tags.join(', ')}\n\n`;
-    message += `Movies: ${data.recommendations}`;
+	// clean input
+	const regex = /```json\s*|\s*```/g;
+	let d = data.recommendations
+	let trimmed = d.replace(regex, '');
+	let jsonArray = JSON.parse(trimmed);
     
-    alert(message);
-    
-    // In a real implementation, you'd display this in a nice UI
+    console.log(jsonArray);
+	
+	// create container to put results in
+  	const container = document.getElementById("movieResults");
+	document.getElementById("search-form").style.display = "none";
+	container.style.display = "block";
+	
+	let header = document.createElement("p");
+	header.textContent = `Movie Recommendations based on ${data.track} - ${data.artist}`;
+	header.className = "resultTitle";
+	container.appendChild(header);
+	
+	// print results in cards
+	jsonArray.forEach(rec => {
+		let card = document.createElement("div");
+		card.className = "rec-card";
+		
+		let movieTitle = document.createElement("p");
+		movieTitle.textContent = rec.title;
+		movieTitle.className = "rec-title";
+		
+		let movieSummary = document.createElement("p");
+		movieSummary.textContent = rec.summary;
+		movieSummary.className = "rec-summary";
+	  
+		card.appendChild(movieTitle);
+		card.appendChild(movieSummary);
+		container.appendChild(card);
+		
+	});
+	
+	let back = document.createElement("a");
+	back.textContent = "< Back to Input";
+	back.setAttribute('href', 'main.html');
+	container.appendChild(back);
 }
 
 /**
@@ -195,3 +194,4 @@ function viewSearchHistory() {
     });
 
 }
+

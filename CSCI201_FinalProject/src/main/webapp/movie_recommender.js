@@ -84,15 +84,46 @@ function handleGenerateRecommendation() {
  * Display song recommendations
  */
 function displayRecommendations(data) {
-    // You would implement a UI to display the recommendations here
-    // For now, just show an alert with the data
-    let message = `Recommendations based on the movie: ${data.movie}\n\n`;
-    message += `Genres: ${data.genres.join(', ')}\n\n`;
-    message += `Songs: ${data.recommendations}`;
+	// clean input
+	const regex = /```json\s*|\s*```/g;
+	let d = data.recommendations
+	let trimmed = d.replace(regex, '');
+	let jsonArray = JSON.parse(trimmed);
     
-    alert(message);
-    
-    // In a real implementation, you'd display this in a nice UI
+    console.log(jsonArray);
+	
+	// create container to put results in
+  	const container = document.getElementById("songResults");
+	document.getElementById("search-form").style.display = "none";
+	container.style.display = "block";
+	
+	let header = document.createElement("p");
+	header.textContent = `Movie Recommendations based on ${data.movie}`;
+	header.className = "resultTitle";
+	container.appendChild(header);
+	
+	// print results in cards
+	jsonArray.forEach(rec => {
+		let card = document.createElement("div");
+		card.className = "rec-card";
+		
+		let songTitle = document.createElement("p");
+		songTitle.textContent = rec.title;
+		songTitle.className = "rec-title";
+		
+		let songArtist = document.createElement("p");
+		songArtist.textContent = rec.artist;
+		songArtist.className = "rec-artist";
+	  
+		card.appendChild(songTitle);
+		card.appendChild(songArtist);
+		container.appendChild(card);
+	});
+	
+	let back = document.createElement("a");
+	back.textContent = "< Back to Input";
+	back.setAttribute('href', 'movie_recommender.html');
+	container.appendChild(back);
 }
 
 /**

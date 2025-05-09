@@ -160,6 +160,13 @@ footer {
     justify-content: center;
 }
 
+.other-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 10px;
+}
+
 #generate-button, #history-button {
     flex: 1;
 }
@@ -175,4 +182,26 @@ footer {
 .center {
     justify-content: center;
     min-height: 100vh;
+}
+
+.rec-card {
+	border-radius: 10px;
+    background-color: #d8e1f3;
+    margin: 10px;
+    padding: 10px;
+}
+
+.rec-title {
+    font-weight: bold;
+}
+
+.rec-summary .rec-artist {
+    font-size: 90%;
+    margin: 3px;
+}
+
+.resultTitle {
+	color: #205375;
+	font-weight: bold;
+	font-size: 110%
 }

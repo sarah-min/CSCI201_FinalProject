@@ -18,7 +18,7 @@
             <!-- need loggin status -->
         </div>
 
-        <div class="form">
+        <div class="form" id="search-form">
             <h1>Song Recommender</h1>
             <div class="form-div">
                 <label class="form-label" for="movie-input">Movie Title</label>
@@ -26,13 +26,24 @@
                     <input class="form-input" type="text" id="movie-input" name="movie-input" placeholder="Enter a movie title" required>
                 </div>
             </div>
+            
             <div class="button-group">
                 <button id="generate-button" class="form-button">Generate Song Recommendation</button>
-                <button id="history-button" class="form-button">History</button>
-                <a href="main.html"><button class="form-button">Switch to Movie Recommender</button></a>
             </div>
+            
+          
         </div>
+        
+        <div id="songResults" class="div-centeralign" style="display:none">
+    	</div>
+    	
+    	<div class="other-options">
+			<a href="history.html">History</a>
+			<p> &nbsp; | &nbsp;</p>
+			<a href="main.html">Switch to Movie Recommender</a>
+		</div>
     </div>
+    
 
     <footer>
         <p>© 2025 CSCI 201 Final Project. All rights reserved.</p>

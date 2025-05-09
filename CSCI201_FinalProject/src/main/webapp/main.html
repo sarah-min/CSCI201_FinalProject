@@ -14,32 +14,36 @@
 
     <div class="div-centeralign">
         <div class="login-status">
-            <p id="user-status">Not logged in</p>
-            <!-- need loggin status -->
+            <p id="not-logged-in" >Not logged in</p>
+            <span class="logged-in" style="display:none">Logged in as </span>
+            <span class="logged-in" id="logged-in" style="display:none"></span>
+            <!-- need logged in status -->
         </div>
-
-        <div class="form">
+        
+        <div class="form" id="search-form">
             <h1>Movie Recommender</h1>
             <div class="form-div">
-                <label class="form-label" for="music-input">Playlist Link or Song Title</label>
+                <label class="form-label" for="song-input">Song Title</label>
                 <div class="input-div">
-                    <input class="form-input" type="text" id="music-input" name="music-input" placeholder="Enter playlist link or song title" required>
+                    <input class="form-input" type="text" id="song-input" name="song-input" placeholder="Song Title - Artist" required>
                 </div>
             </div>
-            <div class="form-div">
-                <label class="form-label" for="file-upload">Or Upload a Playlist File</label>
-                <div class="input-div">
-                    <input class="form-input" type="file" id="file-upload" name="file-upload" accept=".txt,.json,.csv">
-                </div>
-            </div>
+            
             <div class="button-group">
-                <button id="generate-button" class="form-button">Generate Movie Recommendation</button>
-                <button id="history-button" class="form-button">History</button>
-    			<a href="movie_recommender.html"><button class="form-button">Switch to Song Recommender</button></a>
+                <button id="generate-button" class="form-button" onclick="generateRecommendation()">Generate Movie Recommendation</button>
             </div>
-
-</div>
+            
         </div>
+        
+        <div id="movieResults" class="div-centeralign" style="display:none">
+    	</div>
+    	
+    	<div class="other-options">
+			<a href="history.html">History</a>
+			<p> &nbsp; | &nbsp;</p>
+			<a href="movie_recommender.html">Switch to Song Recommender</a>
+		</div>
+    	
     </div>
 
     <footer>
