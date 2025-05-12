@@ -9,7 +9,9 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,7 @@ public class UploadMovie extends HttpServlet {
         
         // Get the movie input from the request
         String movieInput = request.getParameter("movieInput");
+        String username = request.getParameter("user");
         
         if (movieInput == null || movieInput.trim().isEmpty()) {
             sendErrorResponse(out, "No movie input provided");
@@ -71,11 +74,8 @@ public class UploadMovie extends HttpServlet {
             String songRecommendations = getSongRecommendations(genres, movieTitle);
             
             // Save the search to history if user is logged in
-            HttpSession session = request.getSession(false);
-            if (session != null && session.getAttribute("userId") != null) {
-                int userId = (int) session.getAttribute("userId");
-                saveSearchToHistory(userId, movieTitle, genres, songRecommendations);
-            }
+            String user = (username == null) ? "guest" : username;
+            saveSearchToHistory(username, movieInput.trim(), songRecommendations);
             
             // Send success response with song recommendations
             JsonObject jsonResponse = new JsonObject();
@@ -193,7 +193,7 @@ public class UploadMovie extends HttpServlet {
         // Prepare the prompt for Gemini API
         String prompt = "Give a list of 3 song names with their artists based on this movie: '" + 
                         movieTitle + "' with these genres: " + String.join(", ", genres) + 
-                        ". Format the response as JSON with an array of songs, where each song has title and artist properties. Only recommend real songs that have been released.";
+                        ". Format the response as a JSON array of songs, where each song has title and artist properties. Only recommend real songs that have been released.";
         
         // Create the request body
         JsonObject requestBody = new JsonObject();
@@ -255,22 +255,54 @@ public class UploadMovie extends HttpServlet {
         throw new IOException("Failed to parse Gemini API response");
     }
     
-    private void saveSearchToHistory(int userId, String movieTitle, List<String> genres, String recommendations) {
-        try (Connection conn = DBUtil.getConnection()) {
-            String query = "INSERT INTO movie_search_history (user_id, movie, genres, recommendations, search_date) " +
-                           "VALUES (?, ?, ?, ?, NOW())";
+    private void saveSearchToHistory(String userId, String movieTitle, String recommendations) {
+    	Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+    	try {
+        	Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/finalproject?user=root&password=root");
             
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setInt(1, userId);
+            conn.setAutoCommit(false);
+            
+            String query = "INSERT INTO search_history (user_id, title, recommendations, rec_type) " +
+                           "VALUES (?, ?, ?, ?)";
+            
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, userId);
             stmt.setString(2, movieTitle);
-            stmt.setString(3, String.join(", ", genres));
-            stmt.setString(4, recommendations);
+            stmt.setString(3, recommendations); 
+            stmt.setString(4, "movie-to-song");
             
-            stmt.executeUpdate();
+            int rowsAffected = stmt.executeUpdate();
+           
+            conn.commit();
             
         } catch (SQLException e) {
             // Log the error but don't fail the request
             e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
     

@@ -9,42 +9,42 @@
 </head>
 <body>
     <header>
-        <h2>Media & Music Recommender</h2>
+    	<div class="header-div">
+    		<div class="header-center">
+    			<h2>Media & Music Recommender</h2>
+    		</div>
+	        
+	        <div class="header-right">
+	        	<a href="" id="logout-btn" onclick="logout()">Logout</a>
+	        </div>
+        </div>
     </header>
+
 
     <div class="history-container">
         <h1>Search History</h1>
-        <table class="history-table">
+        <table class="history-table" id="history-table">
             <thead>
                 <tr>
                     <th>Request</th>
                     <th>Recommendation</th>
+                    <th>Request Type</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Bohemian Rhapsody</td>
-                    <td>Bohemian Rhapsody</td>
-                </tr>
-                <tr>
-                    <td>Spotify Playlist: Chill Vibes</td>
-                    <td>La La Land</td>
-                </tr>
-                <tr>
-                    <td>Smells Like Teen Spirit</td>
-                    <td>School of Rock</td>
-                </tr>
-                <tr>
-                    <td>Spotify Playlist: 80s Hits</td>
-                    <td>Back to the Future</td>
-                </tr>
+                
             </tbody>
         </table>
+    </div>
+    
+    <div class="go-back">
+    	<a href="main.html" class="nav-btn">Back to Movie Recommender</a>
+    	<a href="movie_recommender.html" class="nav-btn">Back to Song Recommender</a>
     </div>
 
     <footer>
         <p>© 2025 CSCI 201 Final Project. All rights reserved.</p>
     </footer>
-    <script src="main.js"></script>
+    <script src="history.js"></script>
 </body>
 </html>

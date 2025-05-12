@@ -177,57 +177,21 @@ class SystemBootstrapper {
 	        executor.executeUpdate("""
 	            CREATE TABLE IF NOT EXISTS user (
 	                id INT AUTO_INCREMENT PRIMARY KEY,
-	                username VARCHAR(100) NOT NULL,
-	                email VARCHAR(100) NOT NULL UNIQUE,
+	                username VARCHAR(255) NOT NULL,
+	                email VARCHAR(255) NOT NULL UNIQUE,
 	                password VARCHAR(255) NOT NULL
 	            )
 	        """);
 	        
 	        executor.executeUpdate("""
-	            CREATE TABLE IF NOT EXISTS favorites (
-	                id INT AUTO_INCREMENT PRIMARY KEY,
-	                user_id INT NOT NULL,
-	                artist_id VARCHAR(100) NOT NULL,
-	                artist_name VARCHAR(255) NOT NULL,
-	                artist_image VARCHAR(500),
-	                FOREIGN KEY (user_id) REFERENCES user(id),
-	                UNIQUE KEY unique_favorite (user_id, artist_id)
-	            )
-	        """);
-	        
-	        executor.executeUpdate("""
-	            CREATE TABLE IF NOT EXISTS artsy_token (
-	                id INT PRIMARY KEY DEFAULT 1,
-	                token TEXT NOT NULL,
-	                expires_at TIMESTAMP NOT NULL
-	            )
-	        """);
-	        
-	        // Add the search_history table for storing music-to-movie recommendations
-	        executor.executeUpdate("""
-	            CREATE TABLE IF NOT EXISTS search_history (
-	                id INT AUTO_INCREMENT PRIMARY KEY,
-	                user_id INT NOT NULL,
-	                artist VARCHAR(255) NOT NULL,
-	                track VARCHAR(255) NOT NULL,
-	                tags TEXT,
-	                recommendations TEXT,
-	                search_date TIMESTAMP NOT NULL,
-	                FOREIGN KEY (user_id) REFERENCES user(id)
-	            )
-	        """);
-	        
-	        // Add the movie_search_history table for storing movie-to-music recommendations
-	        executor.executeUpdate("""
-	            CREATE TABLE IF NOT EXISTS movie_search_history (
-	                id INT AUTO_INCREMENT PRIMARY KEY,
-	                user_id INT NOT NULL,
-	                movie VARCHAR(255) NOT NULL,
-	                genres TEXT,
-	                recommendations TEXT,
-	                search_date TIMESTAMP NOT NULL,
-	                FOREIGN KEY (user_id) REFERENCES user(id)
-	            )
+	            CREATE TABLE search_history (
+				    id INT AUTO_INCREMENT PRIMARY KEY,
+				    email VARCHAR(255) NOT NULL,
+				    title VARCHAR(255) NOT NULL, -- title for songs = "Song Title - Artist", title for movies = "Movie Title"
+				    recommendations TEXT, -- in json format
+				    rec_type VARCHAR(255), -- song-to-movie or movie-to-song
+				    FOREIGN KEY (user_id) REFERENCES user(id)
+				)
 	        """);
 	    } catch (SQLException ex) {
 	        ex.printStackTrace();

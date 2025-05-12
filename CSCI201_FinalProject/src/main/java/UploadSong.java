@@ -17,6 +17,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ public class UploadSong extends HttpServlet {
         
         // Get the song input from the request
         String songInput = request.getParameter("songInput");
+        String username = request.getParameter("user");
         
         if (songInput == null || songInput.trim().isEmpty()) {
             sendErrorResponse(out, "No song input provided");
@@ -91,12 +93,9 @@ public class UploadSong extends HttpServlet {
             // Get movie recommendations based on song tags
             String movieRecommendations = getMovieRecommendations(tags);
             
-            // Save the search to history if user is logged in
-            HttpSession session = request.getSession(false);
-            if (session != null && session.getAttribute("userId") != null) {
-                int userId = (int) session.getAttribute("userId");
-                saveSearchToHistory(userId, artist, track, tags, movieRecommendations);
-            }
+            // Save the search to history 
+            String user = (username == null) ? "guest" : username;
+            saveSearchToHistory(username, songInput.trim(), movieRecommendations);
             
             // Send success response with movie recommendations
             JsonObject jsonResponse = new JsonObject();
@@ -124,7 +123,6 @@ public class UploadSong extends HttpServlet {
         List<String> tags = new ArrayList<>();
         
         
-        // String urlStr = "http://ws.audioscrobbler.com/2.0/";
         String urlStr = "http://ws.audioscrobbler.com/2.0/?method=track.gettoptags&artist=" + 
                         a + "&track=" + t + "&api_key=" + LASTFM_API_KEY + "&format=json";
         
@@ -184,7 +182,8 @@ public class UploadSong extends HttpServlet {
         // Prepare the prompt for Gemini API
         String prompt = "Give a list of 3 movie names and a short summary of each based on these tags: " + 
                         String.join(", ", tags) + 
-                        " without mentioning the tags in your response in json format with the two fields being 'title' and 'summary', only provide real movies that have been released";
+                        " without mentioning the tags in your response in json format with the two fields being 'title' and 'summary', "
+                        + "only provide real movies that have been released";
         
         // Create the request body
         JsonObject requestBody = new JsonObject();
@@ -246,69 +245,28 @@ public class UploadSong extends HttpServlet {
         throw new IOException("Failed to parse Gemini API response");
     }
     
-    private void saveSearchToHistory(int userId, String artist, String track, List<String> tags, String recommendations) {
+    private void saveSearchToHistory(String userId, String t, String recommendations) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         
         try {
-            conn = DBUtil.getConnection();
+        	Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/finalproject?user=root&password=root");
+            
             conn.setAutoCommit(false);
             
-            // Insert into song_search_history first
-            String query = "INSERT INTO song_search_history (user_id, search_query, result_count, search_date) " +
-                           "VALUES (?, ?, ?, NOW())";
+            String query = "INSERT INTO search_history (user_id, title, recommendations, rec_type) " +
+                           "VALUES (?, ?, ?, ?)";
             
-            stmt = conn.prepareStatement(query, java.sql.Statement.RETURN_GENERATED_KEYS);
-            stmt.setInt(1, userId);
-            stmt.setString(2, artist + " - " + track);
-            stmt.setInt(3, 1); // Just one result for now
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, userId);
+            stmt.setString(2, t);
+            stmt.setString(3, recommendations); 
+            stmt.setString(4, "song-to-movie");
             
             int rowsAffected = stmt.executeUpdate();
-            
-            if (rowsAffected > 0) {
-                rs = stmt.getGeneratedKeys();
-                if (rs.next()) {
-                    int searchId = rs.getInt(1);
-                    
-                    // Now insert the search result details
-                    String resultQuery = "INSERT INTO song_search_results " +
-                                         "(search_id, artist_name, track_name, album_name, track_url, artist_url, image_url) " +
-                                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    
-                    PreparedStatement resultStmt = conn.prepareStatement(resultQuery);
-                    resultStmt.setInt(1, searchId);
-                    resultStmt.setString(2, artist);
-                    resultStmt.setString(3, track);
-                    resultStmt.setString(4, ""); // No album info available
-                    resultStmt.setString(5, ""); // No track URL available
-                    resultStmt.setString(6, ""); // No artist URL available
-                    resultStmt.setString(7, ""); // No image URL available
-                    
-                    resultStmt.executeUpdate();
-                    resultStmt.close();
-                    
-                    // Also save to the old search_history table for backward compatibility
-                    String oldQuery = "INSERT INTO search_history (user_id, artist, track, tags, recommendations, search_date) " +
-                                     "VALUES (?, ?, ?, ?, ?, NOW())";
-                    
-                    PreparedStatement oldStmt = conn.prepareStatement(oldQuery);
-                    oldStmt.setInt(1, userId);
-                    oldStmt.setString(2, artist);
-                    oldStmt.setString(3, track);
-                    oldStmt.setString(4, String.join(", ", tags));
-                    oldStmt.setString(5, recommendations);
-                    
-                    oldStmt.executeUpdate();
-                    oldStmt.close();
-                    
-                    // Save tags for this search
-                    for (String tag : tags) {
-                        saveSongTag(conn, track, artist, tag);
-                    }
-                }
-            }
-            
+           
             conn.commit();
             
         } catch (SQLException e) {
@@ -321,7 +279,10 @@ public class UploadSong extends HttpServlet {
                     ex.printStackTrace();
                 }
             }
-        } finally {
+        } catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
             try {
                 if (rs != null) rs.close();
                 if (stmt != null) stmt.close();
@@ -334,19 +295,7 @@ public class UploadSong extends HttpServlet {
             }
         }
     }
-    
-    private void saveSongTag(Connection conn, String trackName, String artistName, String tagName) throws SQLException {
-        String query = "INSERT INTO song_tags (track_name, artist_name, tag_name) VALUES (?, ?, ?) " +
-                       "ON DUPLICATE KEY UPDATE tag_count = tag_count + 1";
-        
-        PreparedStatement stmt = conn.prepareStatement(query);
-        stmt.setString(1, trackName);
-        stmt.setString(2, artistName);
-        stmt.setString(3, tagName);
-        
-        stmt.executeUpdate();
-        stmt.close();
-    }
+   
     
     private void sendErrorResponse(PrintWriter out, String errorMessage) {
         JsonObject jsonResponse = new JsonObject();

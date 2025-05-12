@@ -100,7 +100,7 @@ function generateRecommendation() {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `songInput=${encodeURIComponent(songInput.value.trim())}`
+        body: `songInput=${encodeURIComponent(songInput.value.trim())}&user=${encodeURIComponent(localStorage.getItem("user"))}`
     })
     .then(response => response.json())
     .then(data => {

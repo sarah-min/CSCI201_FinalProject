@@ -106,8 +106,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+						localStorage.setItem("loggedIn", "true");
+						localStorage.setItem('user', emailLoginInput.value.trim());
                         // Registration successful, redirect to login page
-                        window.location.href = 'login.html';
+                        window.location.href = 'main.html';
                     } else {
                         // Show error message
                         if (data.message && data.message.includes('Email already registered')) {

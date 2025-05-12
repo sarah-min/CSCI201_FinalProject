@@ -61,7 +61,7 @@ function handleGenerateRecommendation() {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `movieInput=${encodeURIComponent(movieInput.value.trim())}`
+        body: `movieInput=${encodeURIComponent(movieInput.value.trim())}&user=${encodeURIComponent(localStorage.getItem("user"))}`
     })
     .then(response => response.json())
     .then(data => {
@@ -98,6 +98,9 @@ function displayRecommendations(data) {
 	header.textContent = `Movie Recommendations based on ${data.movie}`;
 	header.className = "resultTitle";
 	container.appendChild(header);
+	
+	console.log("jsonArray:", jsonArray);
+	console.log("Type of jsonArray:", typeof jsonArray);
 	
 	// print results in cards
 	jsonArray.forEach(rec => {
@@ -150,6 +153,8 @@ function viewSearchHistory() {
         console.error('Error:', error);
         alert('An error occurred while retrieving search history');
     });
-}/**
- * 
- */
+}
+
+function logout() {
+	localStorage.clear();
+}
