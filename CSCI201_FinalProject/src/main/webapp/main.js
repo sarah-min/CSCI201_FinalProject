@@ -163,35 +163,6 @@ function displayRecommendations(data) {
 	container.appendChild(back);
 }
 
-/**
- * View search history
- */
-function viewSearchHistory() {
-    // Redirect to history page or show history modal
-    fetch('GetSongSearchHistory', {
-        method: 'GET',
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Display history in UI
-            alert('Your search history: \n' + JSON.stringify(data.history, null, 2));
-        } else {
-            if (data.error === 'Not logged in') {
-                alert('Please log in to view your search history');
-                window.location.href = 'login.html';
-            } else {
-                alert(`Error: ${data.error}`);
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while retrieving search history');
-    });
-
-}
 
 function logout() {
 	localStorage.clear();

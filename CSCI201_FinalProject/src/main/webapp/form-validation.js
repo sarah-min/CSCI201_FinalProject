@@ -107,7 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.success) {
 						localStorage.setItem("loggedIn", "true");
-						localStorage.setItem('user', emailLoginInput.value.trim());
+						console.log("emailRegInput.value.trim(): " + emailRegInput.value.trim())
+						localStorage.setItem('user', emailRegInput.value.trim());
                         // Registration successful, redirect to login page
                         window.location.href = 'main.html';
                     } else {
