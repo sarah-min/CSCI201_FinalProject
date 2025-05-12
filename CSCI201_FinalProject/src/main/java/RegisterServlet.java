@@ -15,7 +15,7 @@ class DBUtil {
     // Connection URL for FinalProject database
     static String URL = "jdbc:mysql://127.0.0.1:3306/FinalProject?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC";
     static String USERNAME = "root";  
-    static String PASSWORD = "Lucas20021214=";  
+    static String PASSWORD = "root";  
 
     static {
         try {

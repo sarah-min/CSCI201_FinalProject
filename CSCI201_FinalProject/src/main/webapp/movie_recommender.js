@@ -24,27 +24,24 @@ document.addEventListener('DOMContentLoaded', function() {
  * Check login status and update UI accordingly
  */
 function checkLoginStatus() {
-    const userStatus = document.getElementById('user-status');
-    
-    if (!userStatus) return; // Not on a page with user status
-    
-    // Check if user is logged in by making a request to server
-    fetch('checkLoginStatus', {
-        method: 'GET',
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.loggedIn) {
-            userStatus.textContent = `Logged in as: ${data.username}`;
-        } else {
-            userStatus.textContent = 'Not logged in';
-        }
-    })
-    .catch(error => {
-        console.error('Error checking login status:', error);
-        userStatus.textContent = 'Not logged in';
-    });
+	if (localStorage.getItem("loggedIn") === "true") {
+		document.getElementById("not-logged-in").style.display = "none";
+		document.getElementById("login-btn").style.display = "none";
+		document.getElementById("logged-in-as").style.display = "block";
+		document.getElementById("logged-in").style.display = "block";
+		document.getElementById("logged-in").textContent = localStorage.getItem("user");
+		document.getElementById("logged-in").style.fontWeight = "bold";
+		document.getElementById("logout-btn").style.display = "block";	
+		document.getElementById("login-status").style.backgroundColor = "#cfdef3";
+	} else if (localStorage.getItem("loggedIn") === "false" || localStorage.getItem("loggedIn") === null ) {
+		document.getElementById("not-logged-in").style.display = "block";
+		document.getElementById("login-btn").style.display = "block";
+		document.getElementById("logged-in-as").style.display = "none";
+		document.getElementById("logged-in").style.display = "none";
+		document.getElementById("logout-btn").style.display = "none";
+		document.getElementById("history-link").style.display = "none";
+		document.getElementById("separator").style.display = "none";
+	} 
 }
 
 /**

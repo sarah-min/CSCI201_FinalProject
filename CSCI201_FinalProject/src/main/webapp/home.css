@@ -71,6 +71,10 @@ footer {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 400px;
     text-align: center;
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+	align-items: center;
 }
 
 .login-status p {
@@ -204,4 +208,32 @@ footer {
 	color: #205375;
 	font-weight: bold;
 	font-size: 110%
+}
+
+
+.header-div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-center h2 {
+    margin: 0;
+    text-align: center;
+    font-size: 24px;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.header-right {
+    margin-left: auto;
+}
+
+.header-right a {
+    text-decoration: none;
+    background-color: #205375;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
 }

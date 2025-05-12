@@ -183,6 +183,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+						localStorage.setItem("loggedIn", "true");
+						localStorage.setItem('user', emailLoginInput.value.trim());
                         // Login successful, redirect to main page
                         window.location.href = 'main.html';
                     } else {

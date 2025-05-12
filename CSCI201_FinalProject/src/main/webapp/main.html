@@ -4,20 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Recommender</title>
-    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="home.css?v=0.0">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
 </head>
 <body>
     <header>
-        <h2>Media & Music Recommender</h2>
+    	<div class="header-div">
+    		<div class="header-center">
+    			<h2>Media & Music Recommender</h2>
+    		</div>
+	        
+	        <div class="header-right">
+	        	<a href="" id="logout-btn" onclick="logout()">Logout</a>
+	        	<a href="login.html" id="login-btn" >Login</a>
+	        </div>
+        </div>
     </header>
 
     <div class="div-centeralign">
-        <div class="login-status">
+        <div class="login-status" id="login-status">
             <p id="not-logged-in" >Not logged in</p>
-            <span class="logged-in" style="display:none">Logged in as </span>
+            <span class="logged-in" id="logged-in-as" style="display:none">Logged in as: &nbsp;</span>
             <span class="logged-in" id="logged-in" style="display:none"></span>
-            <!-- need logged in status -->
         </div>
         
         <div class="form" id="search-form">
@@ -39,8 +47,8 @@
     	</div>
     	
     	<div class="other-options">
-			<a href="history.html">History</a>
-			<p> &nbsp; | &nbsp;</p>
+			<a href="history.html" id="history-link">History</a>
+			<p id="separator"> &nbsp; | &nbsp;</p>
 			<a href="movie_recommender.html">Switch to Song Recommender</a>
 		</div>
     	
